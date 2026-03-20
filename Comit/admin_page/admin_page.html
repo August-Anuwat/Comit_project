@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BUILDPRO Admin — จัดการคำสั่งซื้อ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700&family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0E1117;
+  --bg2:      #161B25;
+  --bg3:      #1E2535;
+  --border:   #2A3347;
+  --orange:   #F26522;
+  --orange-d: #C44D0A;
+  --orange-l: rgba(242,101,34,0.12);
+  --green:    #22C55E;
+  --green-l:  rgba(34,197,94,0.12);
+  --red:      #EF4444;
+  --red-l:    rgba(239,68,68,0.12);
+  --yellow:   #F59E0B;
+  --yellow-l: rgba(245,158,11,0.12);
+  --blue:     #3B82F6;
+  --blue-l:   rgba(59,130,246,0.12);
+  --purple:   #A855F7;
+  --text:     #E2E8F0;
+  --text2:    #94A3B8;
+  --text3:    #64748B;
+  --mono:     'Share Tech Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'Noto Sans Thai', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 40;
+}
+.sb-logo {
+  padding: 1.2rem 1.2rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.sb-logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; color: var(--orange); letter-spacing: 3px;
+}
+.sb-logo-sub { font-size: 0.65rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; }
+
+.sb-section { padding: 1rem 0.8rem 0.4rem; font-size: 0.62rem; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; }
+
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 1.2rem;
+  font-size: 0.85rem; color: var(--text2);
+  cursor: pointer; border-radius: 0;
+  transition: all 0.18s;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+.sb-item:hover { background: var(--bg3); color: var(--text); border-left-color: var(--border); }
+.sb-item.active { background: var(--orange-l); color: var(--orange); border-left-color: var(--orange); font-weight: 600; }
+.sb-item .sb-icon { font-size: 1rem; width: 18px; text-align: center; }
+.sb-badge { margin-left: auto; background: var(--orange); color: white; font-size: 0.62rem; font-weight: 700; padding: 1px 7px; border-radius: 10px; }
+.sb-badge.green { background: var(--green); }
+
+.sb-bottom {
+  margin-top: auto; border-top: 1px solid var(--border); padding: 1rem;
+}
+.sb-user { display: flex; align-items: center; gap: 10px; }
+.sb-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+.sb-user-name { font-size: 0.82rem; font-weight: 600; }
+.sb-user-role { font-size: 0.68rem; color: var(--text3); }
+
+/* ===== MAIN ===== */
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 30;
+}
+.topbar-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 1px; color: var(--text); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-btn {
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+  padding: 7px 14px; border-radius: 6px; font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 0.8rem; cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; gap: 6px;
+}
+.topbar-btn:hover { border-color: var(--orange); color: var(--orange); }
+.topbar-btn.primary { background: var(--orange); border-color: var(--orange); color: white; }
+.topbar-btn.primary:hover { background: var(--orange-d); }
+.notif-dot { position: relative; }
+.notif-dot::after { content: ''; position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: var(--red); border-radius: 50%; border: 2px solid var(--bg2); }
+
+/* ===== CONTENT ===== */
+.content { padding: 1.5rem; flex: 1; }
+
+/* ===== KPI CARDS ===== */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.kpi-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.1rem 1.2rem; position: relative; overflow: hidden;
+  animation: fadeIn 0.4s ease both;
+}
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.kpi-card.orange::before { background: var(--orange); }
+.kpi-card.green::before  { background: var(--green); }
+.kpi-card.yellow::before { background: var(--yellow); }
+.kpi-card.blue::before   { background: var(--blue); }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.kpi-label { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; }
+.kpi-icon { font-size: 1.2rem; }
+.kpi-value { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 1px; line-height: 1; }
+.kpi-card.orange .kpi-value { color: var(--orange); }
+.kpi-card.green  .kpi-value { color: var(--green); }
+.kpi-card.yellow .kpi-value { color: var(--yellow); }
+.kpi-card.blue   .kpi-value { color: var(--blue); }
+.kpi-sub { font-size: 0.72rem; color: var(--text3); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+.kpi-sub .up   { color: var(--green); }
+.kpi-sub .down { color: var(--red); }
+
+/* ===== CHART BAR (CSS only) ===== */
+.mini-chart { display: flex; align-items: flex-end; gap: 3px; height: 36px; margin-top: 8px; }
+.mini-bar { flex: 1; border-radius: 2px 2px 0 0; transition: height 0.5s ease; min-width: 4px; }
+.kpi-card.orange .mini-bar { background: rgba(242,101,34,0.35); }
+.kpi-card.green  .mini-bar { background: rgba(34,197,94,0.35); }
+.kpi-card.yellow .mini-bar { background: rgba(245,158,11,0.35); }
+.kpi-card.blue   .mini-bar { background: rgba(59,130,246,0.35); }
+.mini-bar.hi { opacity: 1; }
+.mini-bar.hi.orange-hi { background: var(--orange); }
+.mini-bar.hi.green-hi  { background: var(--green); }
+.mini-bar.hi.yellow-hi { background: var(--yellow); }
+.mini-bar.hi.blue-hi   { background: var(--blue); }
+
+/* ===== TOOLBAR ===== */
+.toolbar {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.9rem 1.2rem; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-wrap input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 12px 8px 36px;
+  color: var(--text); font-family: 'Noto Sans Thai', sans-serif; font-size: 0.85rem;
+  outline: none; transition: border-color 0.18s;
+}
+.search-wrap input::placeholder { color: var(--text3); }
+.search-wrap input:focus { border-color: var(--orange); }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 0.9rem; }
+.tb-select {
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+  padding: 8px 28px 8px 12px; border-radius: 6px;
+  font-family: 'Noto Sans Thai', sans-serif; font-size: 0.82rem;
+  outline: none; cursor: pointer; transition: border-color 0.18s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+}
+.tb-select:focus { border-color: var(--orange); }
+.tb-count { font-size: 0.78rem; color: var(--text3); margin-left: auto; white-space: nowrap; }
+
+/* ===== STATUS FILTER PILLS ===== */
+.status-pills { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+.status-pill {
+  padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); color: var(--text3);
+  background: var(--bg2); transition: all 0.18s; white-space: nowrap;
+}
+.status-pill:hover { border-color: var(--text3); color: var(--text); }
+.status-pill.active-pill { border-color: var(--orange); color: var(--orange); background: var(--orange-l); }
+.status-pill[data-s="paid"].active-pill     { border-color: var(--green);  color: var(--green);  background: var(--green-l); }
+.status-pill[data-s="pending"].active-pill  { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-l); }
+.status-pill[data-s="shipping"].active-pill { border-color: var(--blue);   color: var(--blue);   background: var(--blue-l); }
+.status-pill[data-s="done"].active-pill     { border-color: var(--purple); color: var(--purple); background: rgba(168,85,247,0.12); }
+.status-pill[data-s="cancel"].active-pill   { border-color: var(--red);    color: var(--red);    background: var(--red-l); }
+
+/* ===== TABLE ===== */
+.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.orders-table { width: 100%; border-collapse: collapse; }
+.orders-table thead tr { border-bottom: 1px solid var(--border); background: var(--bg3); }
+.orders-table th {
+  padding: 10px 14px; text-align: left;
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text3); white-space: nowrap;
+}
+.orders-table th.sortable { cursor: pointer; user-select: none; }
+.orders-table th.sortable:hover { color: var(--text2); }
+.orders-table th .sort-icon { margin-left: 4px; font-size: 0.6rem; opacity: 0.5; }
+.orders-table th.sorted { color: var(--orange); }
+.orders-table th.sorted .sort-icon { opacity: 1; }
+
+.orders-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s; cursor: pointer;
+  animation: rowFade 0.3s ease both;
+}
+.orders-table tbody tr:last-child { border-bottom: none; }
+.orders-table tbody tr:hover { background: var(--bg3); }
+@keyframes rowFade { from{opacity:0;transform:translateX(-4px)} to{opacity:1;transform:none} }
+
+.orders-table td { padding: 12px 14px; font-size: 0.83rem; vertical-align: middle; }
+
+.td-ref {
+  font-family: var(--mono); font-size: 0.78rem; color: var(--orange);
+  white-space: nowrap;
+}
+.td-customer { }
+.td-customer strong { font-weight: 700; display: block; font-size: 0.85rem; }
+.td-customer span  { color: var(--text3); font-size: 0.72rem; }
+
+.td-amount { font-family: var(--mono); font-weight: 700; font-size: 0.9rem; text-align: right; }
+.td-amount .disc { font-size: 0.68rem; color: var(--green); display: block; text-align: right; }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+}
+.s-paid     { background: var(--green-l);  color: var(--green); }
+.s-pending  { background: var(--yellow-l); color: var(--yellow); }
+.s-shipping { background: var(--blue-l);   color: var(--blue); }
+.s-done     { background: rgba(168,85,247,0.12); color: var(--purple); }
+.s-cancel   { background: var(--red-l);    color: var(--red); }
+.s-packing  { background: var(--orange-l); color: var(--orange); }
+
+.td-delivery { font-size: 0.78rem; color: var(--text2); }
+.td-delivery span { display: block; font-size: 0.68rem; color: var(--text3); margin-top: 1px; }
+
+.td-date { font-family: var(--mono); font-size: 0.72rem; color: var(--text3); white-space: nowrap; }
+
+.action-cell { display: flex; align-items: center; gap: 6px; }
+.act-btn {
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); padding: 5px 10px; border-radius: 5px;
+  font-size: 0.72rem; font-weight: 700; cursor: pointer;
+  transition: all 0.15s; font-family: 'Noto Sans Thai', sans-serif;
+  white-space: nowrap;
+}
+.act-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-l); }
+.act-btn.green:hover  { border-color: var(--green); color: var(--green); background: var(--green-l); }
+.act-btn.red:hover    { border-color: var(--red);   color: var(--red);   background: var(--red-l); }
+
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.2rem; border-top: 1px solid var(--border);
+  font-size: 0.78rem; color: var(--text3);
+}
+.pg-btns { display: flex; gap: 4px; }
+.pg-btn {
+  width: 30px; height: 30px; border-radius: 5px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer; font-size: 0.78rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.pg-btn:hover { border-color: var(--orange); color: var(--orange); }
+.pg-btn.active { background: var(--orange); border-color: var(--orange); color: white; }
+
+/* ===== DRAWER ===== */
+.drawer-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+  z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  backdrop-filter: blur(3px);
+}
+.drawer-overlay.open { opacity: 1; pointer-events: all; }
+.drawer {
+  position: fixed; top: 0; right: -540px; bottom: 0; width: 540px;
+  background: var(--bg2); border-left: 1px solid var(--border);
+  z-index: 101; transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.drawer.open { right: 0; }
+
+.drawer-head {
+  padding: 1.2rem 1.4rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; background: var(--bg3);
+}
+.drawer-head h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 1px; color: var(--text); }
+.drawer-close { background: none; border: none; color: var(--text3); font-size: 1.3rem; cursor: pointer; transition: color 0.15s; line-height: 1; padding: 2px 6px; }
+.drawer-close:hover { color: var(--red); }
+
+.drawer-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem; }
+.drawer-body::-webkit-scrollbar { width: 4px; }
+.drawer-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.drawer-section { margin-bottom: 1.4rem; }
+.drawer-section-title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text3); font-weight: 700; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+
+.d-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 0.83rem; margin-bottom: 8px; }
+.d-label { color: var(--text3); flex-shrink: 0; margin-right: 12px; }
+.d-value { font-weight: 600; text-align: right; word-break: break-word; }
+.d-value.mono { font-family: var(--mono); color: var(--orange); }
+
+/* Drawer items */
+.d-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.d-item:last-child { border-bottom: none; }
+.d-item-thumb { width: 44px; height: 44px; background: var(--bg3); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; border: 1px solid var(--border); }
+.d-item-name { flex: 1; }
+.d-item-name strong { display: block; font-size: 0.85rem; font-weight: 700; }
+.d-item-name span { font-size: 0.72rem; color: var(--text3); }
+.d-item-price { font-family: var(--mono); font-weight: 700; text-align: right; }
+.d-item-price .qty { font-size: 0.7rem; color: var(--text3); display: block; text-align: right; }
+
+/* Drawer status select */
+.status-select-wrap { display: flex; gap: 8px; margin-top: 0.5rem; }
+.status-select {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); padding: 9px 12px; border-radius: 6px;
+  font-family: 'Noto Sans Thai', sans-serif; font-size: 0.85rem; outline: none;
+  cursor: pointer;
+}
+.status-select:focus { border-color: var(--orange); }
+.update-btn {
+  background: var(--orange); color: white; border: none;
+  padding: 9px 18px; border-radius: 6px;
+  font-family: 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 0.85rem;
+  cursor: pointer; transition: background 0.18s; white-space: nowrap;
+}
+.update-btn:hover { background: var(--orange-d); }
+
+/* Drawer timeline */
+.d-timeline { display: flex; flex-direction: column; gap: 0; }
+.d-tl-item { display: flex; gap: 12px; align-items: flex-start; position: relative; }
+.d-tl-item:not(:last-child)::after { content:''; position:absolute; left:15px; top:32px; bottom:0; width:2px; background:var(--border); }
+.d-tl-item.done:not(:last-child)::after { background: var(--green); }
+.d-tl-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; position: relative; z-index: 1; }
+.d-tl-item.done .d-tl-dot { border-color: var(--green); background: var(--green-l); }
+.d-tl-item.active .d-tl-dot { border-color: var(--orange); background: var(--orange-l); animation: pulse2 2s infinite; }
+@keyframes pulse2 { 0%,100%{box-shadow:0 0 0 3px rgba(242,101,34,0.15)} 50%{box-shadow:0 0 0 6px rgba(242,101,34,0.05)} }
+.d-tl-body { padding: 6px 0 20px; flex: 1; }
+.d-tl-title { font-size: 0.83rem; font-weight: 700; }
+.d-tl-item.done .d-tl-title { color: var(--green); }
+.d-tl-item.active .d-tl-title { color: var(--orange); }
+.d-tl-time { font-family: var(--mono); font-size: 0.68rem; color: var(--text3); margin-top: 2px; }
+
+/* Drawer footer actions */
+.drawer-foot {
+  padding: 1rem 1.4rem; border-top: 1px solid var(--border);
+  display: flex; gap: 8px; flex-shrink: 0; background: var(--bg3);
+}
+.df-btn {
+  flex: 1; padding: 10px; border-radius: 6px;
+  font-family: 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 0.83rem;
+  cursor: pointer; border: 1px solid var(--border); transition: all 0.18s;
+  background: var(--bg2); color: var(--text2);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.df-btn:hover { border-color: var(--text2); color: var(--text); }
+.df-btn.primary { background: var(--orange); border-color: var(--orange); color: white; }
+.df-btn.primary:hover { background: var(--orange-d); }
+.df-btn.danger { }
+.df-btn.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-l); }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  padding: 10px 20px; border-radius: 7px; font-size: 0.85rem; font-weight: 500;
+  z-index: 999; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  border-left: 4px solid var(--orange); box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; }
+  .drawer { width: 100%; right: -100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-text">🏗️ BUILDPRO</div>
+    <div class="sb-logo-sub">Admin Dashboard</div>
+  </div>
+
+  <div class="sb-section">หลัก</div>
+  <a class="sb-item" href="#"><span class="sb-icon">📊</span> ภาพรวม</a>
+  <a class="sb-item active" href="#"><span class="sb-icon">📦</span> คำสั่งซื้อ <span class="sb-badge">12</span></a>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar">A</div>
+      <div>
+        <div class="sb-user-name">Admin Manager</div>
+        <div class="sb-user-role">Super Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title">📦 จัดการคำสั่งซื้อ</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card orange" style="animation-delay:0s">
+        <div class="kpi-top"><div class="kpi-label">ออเดอร์วันนี้</div><span class="kpi-icon">📦</span></div>
+        <div class="kpi-value">47</div>
+        <div class="kpi-sub"><span class="up">↑ 12%</span> เทียบกับเมื่อวาน</div>
+        <div class="mini-chart">
+          <div class="mini-bar" style="height:40%"></div><div class="mini-bar" style="height:55%"></div>
+          <div class="mini-bar" style="height:35%"></div><div class="mini-bar" style="height:70%"></div>
+          <div class="mini-bar" style="height:60%"></div><div class="mini-bar" style="height:80%"></div>
+          <div class="mini-bar hi orange-hi" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-card green" style="animation-delay:0.06s">
+        <div class="kpi-top"><div class="kpi-label">ยอดขายวันนี้</div><span class="kpi-icon">💰</span></div>
+        <div class="kpi-value">฿284,500</div>
+        <div class="kpi-sub"><span class="up">↑ 8.3%</span> เทียบกับเมื่อวาน</div>
+        <div class="mini-chart">
+          <div class="mini-bar" style="height:50%"></div><div class="mini-bar" style="height:65%"></div>
+          <div class="mini-bar" style="height:45%"></div><div class="mini-bar" style="height:75%"></div>
+          <div class="mini-bar" style="height:55%"></div><div class="mini-bar" style="height:85%"></div>
+          <div class="mini-bar hi green-hi" style="height:100%"></div>
+        </div>
+      </div>
+      <div class="kpi-card yellow" style="animation-delay:0.12s">
+        <div class="kpi-top"><div class="kpi-label">รอดำเนินการ</div><span class="kpi-icon">⏳</span></div>
+        <div class="kpi-value">12</div>
+        <div class="kpi-sub"><span class="down">↑ 3</span> เพิ่มขึ้นจากเมื่อวาน</div>
+        <div class="mini-chart">
+          <div class="mini-bar" style="height:30%"></div><div class="mini-bar" style="height:45%"></div>
+          <div class="mini-bar" style="height:60%"></div><div class="mini-bar" style="height:40%"></div>
+          <div class="mini-bar" style="height:55%"></div><div class="mini-bar" style="height:70%"></div>
+          <div class="mini-bar hi yellow-hi" style="height:85%"></div>
+        </div>
+      </div>
+      <div class="kpi-card blue" style="animation-delay:0.18s">
+        <div class="kpi-top"><div class="kpi-label">กำลังจัดส่ง</div><span class="kpi-icon">🚛</span></div>
+        <div class="kpi-value">28</div>
+        <div class="kpi-sub"><span class="up">↑ 5</span> ออกไปวันนี้</div>
+        <div class="mini-chart">
+          <div class="mini-bar" style="height:60%"></div><div class="mini-bar" style="height:40%"></div>
+          <div class="mini-bar" style="height:75%"></div><div class="mini-bar" style="height:50%"></div>
+          <div class="mini-bar" style="height:65%"></div><div class="mini-bar" style="height:80%"></div>
+          <div class="mini-bar hi blue-hi" style="height:90%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="ค้นหา: ชื่อลูกค้า, เลขออเดอร์, เบอร์โทร..." oninput="filterOrders()">
+      </div>
+      <select class="tb-select" id="catFilter" onchange="filterOrders()">
+        <option value="">หมวดสินค้าทั้งหมด</option>
+        <option value="คอนกรีต">คอนกรีต</option>
+        <option value="เหล็ก">เหล็ก</option>
+        <option value="ไฟฟ้า">ไฟฟ้า</option>
+        <option value="หลังคา">หลังคา</option>
+        <option value="สี">สี</option>
+        <option value="เครื่องมือ">เครื่องมือ</option>
+      </select>
+      <select class="tb-select" id="dateFilter" onchange="filterOrders()">
+        <option value="">ทุกช่วงเวลา</option>
+        <option value="today">วันนี้</option>
+        <option value="week">7 วันล่าสุด</option>
+        <option value="month">30 วันล่าสุด</option>
+      </select>
+      <select class="tb-select" id="sortBy" onchange="filterOrders()">
+        <option value="date_desc">วันที่ล่าสุด</option>
+        <option value="amount_desc">ยอดสูง→ต่ำ</option>
+        <option value="amount_asc">ยอดต่ำ→สูง</option>
+      </select>
+      <span class="tb-count" id="countLabel">47 รายการ</span>
+    </div>
+
+    <!-- STATUS PILLS -->
+    <div class="status-pills">
+      <div class="status-pill active-pill" data-s="all" onclick="filterStatus('all',this)">ทั้งหมด <span id="cnt-all" style="opacity:0.6">47</span></div>
+      <div class="status-pill" data-s="pending"  onclick="filterStatus('pending',this)"> รอชำระ <span id="cnt-pending" style="opacity:0.6">0</span></div>
+      <div class="status-pill" data-s="paid"      onclick="filterStatus('paid',this)">ชำระแล้ว <span id="cnt-paid" style="opacity:0.6">0</span></div>
+      <div class="status-pill" data-s="packing"   onclick="filterStatus('packing',this)">กำลังแพ็ค <span id="cnt-packing" style="opacity:0.6">0</span></div>
+      <div class="status-pill" data-s="shipping"  onclick="filterStatus('shipping',this)">กำลังส่ง <span id="cnt-shipping" style="opacity:0.6">0</span></div>
+      <div class="status-pill" data-s="done"      onclick="filterStatus('done',this)">ส่งแล้ว <span id="cnt-done" style="opacity:0.6">0</span></div>
+      <div class="status-pill" data-s="cancel"    onclick="filterStatus('cancel',this)">ยกเลิก <span id="cnt-cancel" style="opacity:0.6">0</span></div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="checkAll" onchange="toggleAll(this)" style="accent-color:var(--orange);cursor:pointer;width:14px;height:14px;"></th>
+            <th class="sortable sorted" onclick="sortTable('ref')">เลขออเดอร์ <span class="sort-icon">▼</span></th>
+            <th>ลูกค้า</th>
+            <th>สินค้า</th>
+            <th class="sortable" onclick="sortTable('amount')">ยอด <span class="sort-icon">↕</span></th>
+            <th>สถานะ</th>
+            <th>การจัดส่ง</th>
+            <th class="sortable" onclick="sortTable('date')">วันที่ <span class="sort-icon">↕</span></th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ORDER DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2 id="drawerTitle">ออเดอร์ #BLD-2025-88741</h2>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot">
+    <button class="df-btn" onclick="showToast('🖨️ กำลังพิมพ์ใบส่งสินค้า...')">🖨️ พิมพ์ใบส่ง</button>
+    <button class="df-btn" onclick="showToast('📧 ส่งอีเมลลูกค้าแล้ว')">✉️ อีเมลลูกค้า</button>
+    <button class="df-btn primary" onclick="showToast('บันทึกการเปลี่ยนแปลงแล้ว')">💾 บันทึก</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+const ORDERS = [
+  { id:'BLD-2025-88741', customer:'สมชาย ใจดี',      phone:'081-234-5678', email:'somchai@buildpro.th', amount:17615, discount:2985, items:[{e:'🧱',n:'ปูนซีเมนต์ TPI',q:5,p:925},{e:'🔩',n:'เหล็กเส้น RB9',q:20,p:3700},{e:'🔧',n:'สว่าน Bosch',q:1,p:4990},{e:'🔌',n:'สายไฟ THW',q:3,p:2550},{e:'🪟',n:'ยิปซัม Gyproc',q:30,p:4950}], status:'packing',  delivery:'จัดส่งมาตรฐาน', addr:'123/45 ถ.สุขุมวิท ซ.71 วัฒนา กทม.',  date:'20/03/2568 14:32', payment:'VISA *4242', cat:'คอนกรีต' },
+  { id:'BLD-2025-88740', customer:'วิภา รักงาน',     phone:'089-888-1234', email:'wipa@email.com',     amount:4290,  discount:700,  items:[{e:'🎨',n:'สีทาบ้าน TOA',q:2,p:4380},{e:'🧪',n:'น้ำยาประสาน',q:1,p:280}],             status:'shipping', delivery:'ด่วนพิเศษ 24ชม.',   addr:'88 ถ.พระราม 9 ห้วยขวาง กทม.',   date:'20/03/2568 13:15', payment:'QR PromptPay', cat:'สี' },
+  { id:'BLD-2025-88739', customer:'ประสิทธิ์ ก่อสร้าง',phone:'062-555-9999', email:'prasit@site.co.th',amount:52800, discount:0,    items:[{e:'⚙️',n:'เหล็ก C Purlin',q:50,p:16000},{e:'🏠',n:'เมทัลชีท',q:80,p:33600}],           status:'paid',     delivery:'จัดส่งมาตรฐาน', addr:'200 ถ.สาทร บางรัก กทม.',          date:'20/03/2568 11:48', payment:'โอนธนาคาร', cat:'เหล็ก' },
+  { id:'BLD-2025-88738', customer:'นันทนา ก้าวหน้า',  phone:'091-777-4444', email:'nanta@mail.com',    amount:1450,  discount:200,  items:[{e:'🔌',n:'ท่อ PVC',q:20,p:1300},{e:'⚡',n:'ตู้เบรกเกอร์',q:1,p:1290}],               status:'done',     delivery:'รับที่สาขา',    addr:'สาขาลาดพร้าว กทม.',              date:'19/03/2568 16:22', payment:'VISA *8811', cat:'ไฟฟ้า' },
+  { id:'BLD-2025-88737', customer:'กิตติพงษ์ พัฒนา', phone:'083-321-6677', email:'kit@building.th',   amount:8900,  discount:1000, items:[{e:'🪚',n:'เลื่อยวงเดือน Makita',q:1,p:3290},{e:'🔧',n:'ประแจ Stanley',q:2,p:1780}],  status:'pending',  delivery:'จัดส่งมาตรฐาน', addr:'45/6 ถ.รัชดา ห้วยขวาง กทม.',    date:'20/03/2568 15:01', payment:'COD', cat:'เครื่องมือ' },
+  { id:'BLD-2025-88736', customer:'ศิริพร มั่งมี',    phone:'086-654-3322', email:'siriporn@me.com',   amount:3200,  discount:400,  items:[{e:'🪵',n:'กระเบื้องพื้น Cotto',q:10,p:1850},{e:'🏺',n:'กระเบื้องผนัง',q:8,p:1160}], status:'packing',  delivery:'จัดส่งมาตรฐาน', addr:'15/1 ม.5 ลาดกระบัง กทม.',         date:'20/03/2568 10:33', payment:'Mastercard *1234', cat:'สี' },
+  { id:'BLD-2025-88735', customer:'สุริยา โรจน์ทอง', phone:'098-112-5566', email:'suriya@power.co',   amount:21000, discount:3000, items:[{e:'🧱',n:'อิฐมวลเบา Q-CON',q:500,p:14000},{e:'🪨',n:'ปูนสำเร็จรูป SCG',q:48,p:6960}],status:'shipping', delivery:'จัดส่งมาตรฐาน', addr:'222 ม.3 บางนา-ตราด สมุทรปราการ', date:'19/03/2568 09:10', payment:'โอนธนาคาร', cat:'คอนกรีต' },
+  { id:'BLD-2025-88734', customer:'พิมพ์ใจ หวานใจ',  phone:'088-445-7733', email:'pimjai@home.com',   amount:680,   discount:0,    items:[{e:'🧴',n:'กาวซีเมนต์ Weber',q:1,p:390},{e:'🎨',n:'น้ำยาประสาน',q:1,p:280}],            status:'cancel',   delivery:'รับที่สาขา',    addr:'ยกเลิกคำสั่งซื้อ',               date:'19/03/2568 14:55', payment:'ยกเลิกแล้ว', cat:'สี' },
+  { id:'BLD-2025-88733', customer:'ธนวัฒน์ โชคดี',   phone:'064-990-0011', email:'tanawat@rich.co',   amount:38500, discount:4500, items:[{e:'🔧',n:'สว่าน Bosch',q:3,p:14970},{e:'🪚',n:'เลื่อย Makita',q:2,p:6580}],          status:'done',     delivery:'ด่วนพิเศษ 24ชม.', addr:'100/2 สีลม บางรัก กทม.',         date:'18/03/2568 11:20', payment:'VISA *9988', cat:'เครื่องมือ' },
+  { id:'BLD-2025-88732', customer:'อมรรัตน์ ร่ำรวย', phone:'077-888-2233', email:'amorn@rich.th',     amount:9800,  discount:1200, items:[{e:'🏠',n:'เมทัลชีท Lysaght',q:15,p:6300},{e:'🪟',n:'ยิปซัม Gyproc',q:18,p:2970}],   status:'paid',     delivery:'จัดส่งมาตรฐาน', addr:'55 ซ.อโศก วัฒนา กทม.',            date:'20/03/2568 09:45', payment:'QR PromptPay', cat:'หลังคา' },
+  { id:'BLD-2025-88731', customer:'ชัยวัฒน์ สร้างชาติ',phone:'095-663-8899',email:'chai@build.co.th', amount:62000, discount:8000, items:[{e:'🔩',n:'เหล็กเส้น',q:100,p:18500},{e:'⚙️',n:'เหล็ก C',q:80,p:25600}],            status:'shipping', delivery:'จัดส่งมาตรฐาน', addr:'300 ถ.พัฒนาการ สวนหลวง กทม.',    date:'19/03/2568 08:30', payment:'โอนธนาคาร', cat:'เหล็ก' },
+  { id:'BLD-2025-88730', customer:'ลลิตา สุดสวย',    phone:'082-556-1122', email:'lalita@mail.com',   amount:2750,  discount:300,  items:[{e:'🪵',n:'ไม้พื้น Laminate',q:14,p:2730}],                                          status:'pending',  delivery:'รับที่สาขา',    addr:'สาขาบางนา',                       date:'20/03/2568 16:10', payment:'COD', cat:'หลังคา' },
+];
+
+let currentStatus = 'all';
+let filtered = [...ORDERS];
+
+const STATUS_MAP = {
+  pending:  { label:'⏳ รอชำระ',     cls:'s-pending' },
+  paid:     { label:'✅ ชำระแล้ว',   cls:'s-paid' },
+  packing:  { label:'📦 กำลังแพ็ค', cls:'s-packing' },
+  shipping: { label:'🚛 กำลังส่ง',  cls:'s-shipping' },
+  done:     { label:'🟣 ส่งแล้ว',   cls:'s-done' },
+  cancel:   { label:'❌ ยกเลิก',    cls:'s-cancel' },
+};
+
+function fmt(n) { return '฿' + n.toLocaleString('th-TH'); }
+
+function renderTable() {
+  const body = document.getElementById('orderTableBody');
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:3rem;color:var(--text3);">ไม่พบคำสั่งซื้อที่ตรงกัน</td></tr>`;
+    return;
+  }
+  body.innerHTML = filtered.map((o, idx) => {
+    const s = STATUS_MAP[o.status];
+    const itemSummary = o.items.slice(0,2).map(i => i.e + ' ' + i.n).join(', ') + (o.items.length > 2 ? ` +${o.items.length-2}` : '');
+    return `<tr onclick="openDrawer(${idx})" style="animation-delay:${idx*0.04}s">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="row-check" style="accent-color:var(--orange);cursor:pointer;width:14px;height:14px;"></td>
+      <td><div class="td-ref">${o.id}</div></td>
+      <td><div class="td-customer"><strong>${o.customer}</strong><span>${o.phone}</span></div></td>
+      <td style="font-size:0.78rem;color:var(--text2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${itemSummary}</td>
+      <td><div class="td-amount">${fmt(o.amount)}${o.discount>0?`<span class="disc">ลด ${fmt(o.discount)}</span>`:''}</div></td>
+      <td><span class="status-badge ${s.cls}">${s.label}</span></td>
+      <td><div class="td-delivery">${o.delivery}<span>${o.addr.slice(0,28)}${o.addr.length>28?'…':''}</span></div></td>
+      <td><div class="td-date">${o.date}</div></td>
+      <td onclick="event.stopPropagation()">
+        <div class="action-cell">
+          <button class="act-btn" onclick="openDrawer(${idx})">ดูรายละเอียด</button>
+          <button class="act-btn green" onclick="updateStatus(${idx},'shipping');event.stopPropagation()">ส่งของ</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // update counts
+  updateCounts();
+  document.getElementById('countLabel').textContent = filtered.length + ' รายการ';
+}
+
+function updateCounts() {
+  const all = ORDERS;
+  document.getElementById('cnt-all').textContent     = all.length;
+  ['pending','paid','packing','shipping','done','cancel'].forEach(s => {
+    const el = document.getElementById('cnt-'+s);
+    if (el) el.textContent = all.filter(o => o.status === s).length;
+  });
+}
+
+function filterStatus(s, el) {
+  currentStatus = s;
+  document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-pill'));
+  el.classList.add('active-pill');
+  filterOrders();
+}
+
+function filterOrders() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('catFilter').value;
+  filtered = ORDERS.filter(o => {
+    const matchStatus = currentStatus === 'all' || o.status === currentStatus;
+    const matchSearch = !q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.phone.includes(q);
+    const matchCat    = !cat || o.cat === cat;
+    return matchStatus && matchSearch && matchCat;
+  });
+  renderTable();
+}
+
+function updateStatus(idx, newStatus) {
+  filtered[idx].status = newStatus;
+  const orig = ORDERS.find(o => o.id === filtered[idx].id);
+  if (orig) orig.status = newStatus;
+  renderTable();
+  showToast('✅ อัปเดตสถานะเป็น ' + STATUS_MAP[newStatus].label);
+}
+
+function sortTable(by) {
+  document.querySelectorAll('.orders-table th.sortable').forEach(th => th.classList.remove('sorted'));
+  event.currentTarget?.classList.add('sorted');
+  if (by === 'amount') filtered.sort((a,b) => b.amount - a.amount);
+  else filtered.sort((a,b) => b.id.localeCompare(a.id));
+  renderTable();
+}
+
+function toggleAll(cb) {
+  document.querySelectorAll('.row-check').forEach(c => c.checked = cb.checked);
+}
+
+// ===== DRAWER =====
+function openDrawer(idx) {
+  const o = filtered[idx];
+  document.getElementById('drawerTitle').textContent = o.id;
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+
+  const tlSteps = [
+    { key:'pending',  label:'รอชำระเงิน',        icon:'⏳', time:'20/03/2568 14:30' },
+    { key:'paid',     label:'ชำระเงินสำเร็จ',     icon:'💳', time:'20/03/2568 14:32' },
+    { key:'packing',  label:'กำลังเตรียมสินค้า',  icon:'📦', time:'20/03/2568 14:35' },
+    { key:'shipping', label:'ส่งออกไปแล้ว',        icon:'🚛', time:'21/03/2568 08:00' },
+    { key:'done',     label:'จัดส่งถึงปลายทาง',   icon:'✅', time:'22/03/2568 10:30' },
+  ];
+  const statusOrder = ['pending','paid','packing','shipping','done'];
+  const curIdx = statusOrder.indexOf(o.status);
+
+  document.getElementById('drawerBody').innerHTML = `
+    <!-- STATUS UPDATE -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">อัปเดตสถานะ</div>
+      <div class="status-select-wrap">
+        <select class="status-select" id="drawerStatusSel">
+          ${Object.entries(STATUS_MAP).map(([k,v])=>`<option value="${k}" ${o.status===k?'selected':''}>${v.label}</option>`).join('')}
+        </select>
+        <button class="update-btn" onclick="applyDrawerStatus('${o.id}')">อัปเดต</button>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">ไทม์ไลน์คำสั่งซื้อ</div>
+      <div class="d-timeline">
+        ${tlSteps.map((step, i) => {
+          const isDone   = i < curIdx || (o.status === 'done' && i <= curIdx);
+          const isActive = statusOrder[curIdx] === step.key;
+          const cls = isDone ? 'done' : (isActive ? 'active' : '');
+          return `<div class="d-tl-item ${cls}">
+            <div class="d-tl-dot">${isDone ? '✓' : step.icon}</div>
+            <div class="d-tl-body">
+              <div class="d-tl-title">${step.label}</div>
+              <div class="d-tl-time">${isDone || isActive ? step.time : '—'}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- CUSTOMER -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">ข้อมูลลูกค้า</div>
+      <div class="d-row"><span class="d-label">ชื่อ</span><span class="d-value">${o.customer}</span></div>
+      <div class="d-row"><span class="d-label">โทรศัพท์</span><span class="d-value">${o.phone}</span></div>
+      <div class="d-row"><span class="d-label">อีเมล</span><span class="d-value">${o.email}</span></div>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">รายการสินค้า (${o.items.length} รายการ)</div>
+      ${o.items.map(i => `
+        <div class="d-item">
+          <div class="d-item-thumb">${i.e}</div>
+          <div class="d-item-name"><strong>${i.n}</strong><span>×${i.q}</span></div>
+          <div class="d-item-price">${fmt(i.p)}<span class="qty">×${i.q}</span></div>
+        </div>`).join('')}
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">สรุปยอด</div>
+      <div class="d-row"><span class="d-label">ราคาสินค้า</span><span class="d-value">${fmt(o.amount - 500 + o.discount)}</span></div>
+      ${o.discount > 0 ? `<div class="d-row"><span class="d-label">ส่วนลด</span><span class="d-value" style="color:var(--red)">−${fmt(o.discount)}</span></div>` : ''}
+      <div class="d-row"><span class="d-label">ค่าจัดส่ง</span><span class="d-value">฿500</span></div>
+      <div class="d-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;"><span class="d-label" style="font-weight:700;color:var(--text)">ยอดรวม</span><span class="d-value mono" style="font-size:1.1rem;">${fmt(o.amount)}</span></div>
+    </div>
+
+    <!-- DELIVERY -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">การจัดส่ง</div>
+      <div class="d-row"><span class="d-label">วิธีจัดส่ง</span><span class="d-value">${o.delivery}</span></div>
+      <div class="d-row"><span class="d-label">ที่อยู่</span><span class="d-value">${o.addr}</span></div>
+      <div class="d-row"><span class="d-label">ชำระเงิน</span><span class="d-value">${o.payment}</span></div>
+    </div>
+
+    <!-- NOTE -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">หมายเหตุ / บันทึกภายใน</div>
+      <textarea style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);font-family:'Noto Sans Thai',sans-serif;font-size:0.82rem;resize:vertical;min-height:70px;outline:none;" placeholder="เพิ่มหมายเหตุสำหรับทีมงาน..."></textarea>
+    </div>
+  `;
+}
+
+function applyDrawerStatus(orderId) {
+  const sel = document.getElementById('drawerStatusSel');
+  const newS = sel.value;
+  const o = ORDERS.find(x => x.id === orderId);
+  if (o) { o.status = newS; }
+  filterOrders();
+  showToast('✅ อัปเดตสถานะ ' + STATUS_MAP[newS].label);
+  closeDrawer();
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// INIT
+renderTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BUILDPRO — ยืนยันคำสั่งซื้อ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700&family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #F26522;
+    --orange-dark: #C44D0A;
+    --orange-light: #FFF3EC;
+    --dark: #1A1A1A;
+    --charcoal: #2D2D2D;
+    --steel: #4A5568;
+    --muted: #8A9BB0;
+    --light: #F7F4F0;
+    --border: #E2DDD8;
+    --surface: #F4F1ED;
+    --red: #C0392B;
+    --green: #1E8449;
+    --green-light: #E8F5E9;
+    --green-mid: #27AE60;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans Thai', sans-serif;
+    background: var(--surface);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* ====== NAV ====== */
+  nav {
+    background: var(--charcoal);
+    padding: 0 2.5rem; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 3px solid var(--orange);
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--orange); letter-spacing: 4px; text-decoration: none; }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .nav-link { color: rgba(255,255,255,0.65); font-size: 0.85rem; text-decoration: none; transition: color 0.2s; }
+  .nav-link:hover { color: var(--orange); }
+
+  /* ====== STEPS ====== */
+  .steps-wrap { background: white; border-bottom: 1px solid var(--border); padding: 0 2rem; }
+  .steps-bar { max-width: 1200px; margin: 0 auto; padding: 1rem 0; display: flex; align-items: center; }
+  .step { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .step.active { color: var(--green); }
+  .step.done   { color: var(--green); }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; background: var(--border); color: var(--muted); flex-shrink: 0; }
+  .step.done   .step-num { background: var(--green); color: white; }
+  .step.active .step-num { background: var(--green); color: white; }
+  .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 10px; max-width: 70px; }
+  .step-line.done { background: var(--green); }
+
+  /* ====== HERO BANNER ====== */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #1a1a1a 60%, #0d0d0d 100%);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(242,101,34,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  /* confetti */
+  .confetti-wrap {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute; top: -20px;
+    width: 8px; height: 14px; border-radius: 2px;
+    animation: confettiFall linear infinite;
+    opacity: 0.85;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(calc(100vh + 40px)) rotate(720deg); opacity: 0; }
+  }
+
+  .success-icon {
+    font-size: 5rem;
+    animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    display: inline-block; margin-bottom: 0.6rem;
+  }
+  @keyframes popIn { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: white; letter-spacing: 2px; line-height: 1;
+    animation: slideUp 0.5s 0.2s ease both;
+  }
+  .hero-title span { color: var(--orange); }
+  @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+  .hero-sub {
+    color: rgba(255,255,255,0.6); font-size: 0.95rem; margin-top: 0.6rem;
+    animation: slideUp 0.5s 0.35s ease both;
+  }
+  .hero-ref {
+    margin-top: 1rem;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; padding: 10px 20px;
+    animation: slideUp 0.5s 0.5s ease both;
+  }
+  .hero-ref-label { font-size: 0.72rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 1px; }
+  .hero-ref-num { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: var(--orange); letter-spacing: 2px; }
+  .hero-ref-copy { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); padding: 4px 10px; border-radius: 4px; font-size: 0.72rem; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif; transition: all 0.2s; }
+  .hero-ref-copy:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* ====== EMAIL SENT BAR ====== */
+  .email-bar {
+    background: var(--green-light); border-bottom: 1px solid #a5d6a7;
+    padding: 10px 2rem; text-align: center;
+    font-size: 0.82rem; color: var(--green);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  /* ====== MAIN ====== */
+  .page {
+    max-width: 1200px; margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+    display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start;
+  }
+
+  /* ====== CARD ====== */
+  .card {
+    background: white; border-radius: 10px;
+    border: 1px solid var(--border); overflow: hidden;
+    margin-bottom: 1.25rem;
+    animation: fadeUp 0.35s ease both;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  .card-head {
+    padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+    background: var(--light); display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-head h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 1px; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+
+  /* ====== STATUS TRACKER ====== */
+  .tracker { padding: 1.5rem; }
+  .track-steps { display: flex; flex-direction: column; gap: 0; }
+
+  .track-step {
+    display: flex; gap: 16px; align-items: flex-start;
+    position: relative;
+  }
+  .track-step:not(:last-child)::after {
+    content: ''; position: absolute;
+    left: 19px; top: 40px;
+    width: 2px; height: calc(100% - 8px);
+    background: var(--border);
+  }
+  .track-step.done:not(:last-child)::after { background: var(--green); }
+  .track-step.active:not(:last-child)::after {
+    background: linear-gradient(to bottom, var(--green) 0%, var(--border) 100%);
+  }
+
+  .track-icon-wrap {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0; position: relative; z-index: 1;
+    border: 2px solid var(--border); background: white;
+    transition: all 0.3s;
+  }
+  .track-step.done   .track-icon-wrap { border-color: var(--green); background: var(--green); }
+  .track-step.active .track-icon-wrap { border-color: var(--orange); background: var(--orange-light); box-shadow: 0 0 0 4px rgba(242,101,34,0.15); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 4px rgba(242,101,34,0.15)} 50%{box-shadow:0 0 0 8px rgba(242,101,34,0.06)} }
+
+  .track-body { flex: 1; padding: 8px 0 28px; }
+  .track-title { font-weight: 700; font-size: 0.9rem; color: var(--dark); margin-bottom: 3px; }
+  .track-step.done   .track-title { color: var(--green); }
+  .track-step.active .track-title { color: var(--orange); }
+  .track-step.pending .track-title { color: var(--muted); }
+  .track-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+  .track-time { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+  .track-step.done .track-time { color: var(--green-mid); }
+
+  .track-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; margin-top: 6px;
+  }
+  .badge-success { background: var(--green-light); color: var(--green); }
+  .badge-active  { background: var(--orange-light); color: var(--orange-dark); }
+  .badge-pending { background: var(--light); color: var(--muted); }
+
+  /* ====== ORDER ITEMS ====== */
+  .items-table { width: 100%; border-collapse: collapse; }
+  .items-table th { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); padding: 10px 1.5rem; border-bottom: 1px solid var(--border); text-align: left; background: var(--light); }
+  .items-table th:last-child { text-align: right; }
+  .items-table td { padding: 14px 1.5rem; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 0.88rem; }
+  .items-table tr:last-child td { border-bottom: none; }
+
+  .item-cell { display: flex; align-items: center; gap: 12px; }
+  .item-thumb { width: 52px; height: 52px; background: var(--light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 1px solid var(--border); flex-shrink: 0; }
+  .item-brand { font-size: 0.65rem; color: var(--orange); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+  .item-name  { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.3px; line-height: 1.1; }
+  .item-desc  { font-size: 0.73rem; color: var(--muted); }
+  .item-qty   { font-weight: 700; color: var(--steel); }
+  .item-price { font-weight: 700; text-align: right; }
+  .item-price .old { font-size: 0.72rem; color: var(--muted); text-decoration: line-through; display: block; }
+
+  /* ====== SHIPPING INFO ====== */
+  .info-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; padding: 1.25rem 1.5rem; gap: 1rem;
+  }
+  .info-block {}
+  .info-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 6px; }
+  .info-value { font-size: 0.88rem; color: var(--dark); line-height: 1.6; }
+  .info-value strong { font-weight: 700; }
+  .info-tag { display: inline-flex; align-items: center; gap: 5px; background: var(--orange-light); border: 1px solid #f4b98a; color: var(--orange-dark); font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 12px; margin-top: 4px; }
+
+  /* ====== PAYMENT INFO ====== */
+  .pay-row { display: flex; align-items: center; gap: 12px; padding: 14px 1.5rem; border-bottom: 1px solid var(--border); }
+  .pay-row:last-child { border-bottom: none; }
+  .pay-icon { font-size: 1.6rem; }
+  .pay-label { font-size: 0.75rem; color: var(--muted); }
+  .pay-val   { font-weight: 700; font-size: 0.9rem; }
+  .pay-status-badge { margin-left: auto; display: flex; align-items: center; gap: 5px; background: var(--green-light); color: var(--green); font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 12px; }
+
+  /* ====== SIDEBAR ====== */
+  .sidebar { position: sticky; top: 20px; }
+
+  .sum-card { background: white; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 1.25rem; animation: fadeUp 0.4s 0.1s ease both; }
+  .sum-header { background: var(--charcoal); padding: 1rem 1.4rem; border-bottom: 3px solid var(--orange); display: flex; align-items: center; justify-content: space-between; }
+  .sum-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: white; letter-spacing: 1px; }
+  .sum-header-badge { background: var(--green); color: white; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+
+  .sum-body { padding: 1.2rem 1.4rem; }
+  .sum-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--steel); margin-bottom: 6px; align-items: center; }
+  .sum-row.disc { color: var(--red); }
+  .sum-row.total { font-weight: 700; font-size: 1rem; color: var(--dark); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; }
+  .sum-row.total span:last-child { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--orange); letter-spacing: 0.5px; }
+
+  .savings-chip { background: var(--green-light); border: 1px solid #a5d6a7; border-radius: 7px; padding: 8px 12px; font-size: 0.78rem; color: var(--green); font-weight: 600; text-align: center; margin-top: 8px; }
+
+  /* ====== ACTION BUTTONS ====== */
+  .action-card { background: white; border-radius: 10px; border: 1px solid var(--border); padding: 1.2rem; animation: fadeUp 0.4s 0.2s ease both; }
+  .action-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 1px; color: var(--dark); margin-bottom: 1rem; }
+
+  .btn-primary { width: 100%; background: var(--orange); color: white; border: none; padding: 13px; border-radius: 7px; font-family: 'Noto Sans Thai', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
+  .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(242,101,34,0.3); }
+
+  .btn-outline { width: 100%; background: none; border: 1.5px solid var(--border); color: var(--steel); padding: 11px; border-radius: 7px; font-family: 'Noto Sans Thai', sans-serif; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
+  .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+
+  .btn-green { background: var(--green); }
+  .btn-green:hover { background: #166638; }
+
+  /* ====== MINI SHARE ====== */
+  .share-row { display: flex; gap: 8px; margin-top: 0.5rem; }
+  .share-btn { flex: 1; background: var(--light); border: 1px solid var(--border); border-radius: 7px; padding: 8px; font-size: 0.75rem; font-weight: 700; color: var(--steel); cursor: pointer; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .share-btn:hover { background: var(--orange-light); border-color: var(--orange); color: var(--orange-dark); }
+
+  /* ====== INVOICE PREVIEW ====== */
+  .invoice-preview {
+    background: white; border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.2rem 1.4rem; position: relative; overflow: hidden;
+  }
+  .invoice-preview::before {
+    content: 'BUILDPRO';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-20deg);
+    font-family: 'Bebas Neue', sans-serif; font-size: 5rem;
+    color: rgba(242,101,34,0.05); letter-spacing: 4px; pointer-events: none;
+    white-space: nowrap;
+  }
+  .inv-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .inv-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--orange); letter-spacing: 3px; }
+  .inv-meta { text-align: right; font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
+  .inv-meta strong { color: var(--dark); }
+  .inv-divider { border: none; border-top: 1px dashed var(--border); margin: 0.8rem 0; }
+  .inv-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--steel); margin-bottom: 3px; }
+  .inv-row.total { font-weight: 700; font-size: 0.9rem; color: var(--dark); margin-top: 6px; }
+  .inv-row.total span:last-child { color: var(--orange); font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; }
+
+  /* ====== TOAST ====== */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--charcoal); color: white; padding: 11px 22px; border-radius: 6px; font-size: 0.88rem; font-weight: 500; z-index: 999; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; border-left: 4px solid var(--orange); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 900px) { .page { grid-template-columns: 1fr; } .sidebar { position: static; } }
+  @media (max-width: 600px) { nav { padding: 0 1rem; } .page { padding: 1rem 1rem 3rem; } .info-grid { grid-template-columns: 1fr; } .items-table th:nth-child(3), .items-table td:nth-child(3) { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">🏗️ BUILDPRO</a>
+  <div class="nav-right">
+    <a class="nav-link" href="#">ประวัติคำสั่งซื้อ</a>
+    <a class="nav-link" href="#">ติดต่อเรา</a>
+  </div>
+</nav>
+
+<!-- STEPS -->
+<div class="steps-wrap">
+  <div class="steps-bar">
+    <div class="step done"><div class="step-num">✓</div>ตะกร้าสินค้า</div>
+    <div class="step-line done"></div>
+    <div class="step done"><div class="step-num">✓</div>ข้อมูลการจัดส่ง</div>
+    <div class="step-line done"></div>
+    <div class="step done"><div class="step-num">✓</div>ชำระเงิน</div>
+    <div class="step-line done"></div>
+    <div class="step active"><div class="step-num">✓</div>ยืนยันคำสั่งซื้อ</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero-banner">
+  <div class="confetti-wrap" id="confettiWrap"></div>
+  <div class="success-icon">✅</div>
+  <div class="hero-title">คำสั่งซื้อ<span>สำเร็จแล้ว!</span></div>
+  <div class="hero-sub">ขอบคุณที่ไว้วางใจ BUILDPRO · ทีมงานจะดำเนินการจัดส่งทันที</div>
+  <div class="hero-ref">
+    <div>
+      <div class="hero-ref-label">หมายเลขคำสั่งซื้อ</div>
+      <div class="hero-ref-num">BLD-2025-88741</div>
+    </div>
+    <button class="hero-ref-copy" onclick="copyRef()">คัดลอก</button>
+  </div>
+</div>
+
+<!-- EMAIL BAR -->
+<div class="email-bar">
+  ✉️ ส่งอีเมลยืนยันไปที่ <strong>&nbsp;somchai@buildpro.th&nbsp;</strong> เรียบร้อยแล้ว · ตรวจสอบกล่องจดหมายของคุณ
+</div>
+
+<!-- PAGE -->
+<div class="page">
+  <div>
+    <!-- ORDER ITEMS -->
+    <div class="card" style="animation-delay:0.08s">
+      <div class="card-head">
+        <h2>🧱 รายการสินค้า <span style="font-weight:400;font-size:0.85rem;font-family:'Noto Sans Thai',sans-serif;color:var(--muted);margin-left:4px;">(5 รายการ)</span></h2>
+      </div>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>สินค้า</th>
+            <th>ราคา/หน่วย</th>
+            <th>จำนวน</th>
+            <th>รวม</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="item-cell"><div class="item-thumb">🧱</div><div><div class="item-brand">TPI</div><div class="item-name">ปูนซีเมนต์ปอร์ตแลนด์</div><div class="item-desc">ถุง 50 กก. เกรด 42.5N</div></div></div></td>
+            <td>฿185/ถุง</td>
+            <td class="item-qty">×5</td>
+            <td class="item-price">฿925</td>
+          </tr>
+          <tr>
+            <td><div class="item-cell"><div class="item-thumb">🔩</div><div><div class="item-brand">G Steel</div><div class="item-name">เหล็กเส้น RB9</div><div class="item-desc">เส้น 9 มม. ยาว 10 ม.</div></div></div></td>
+            <td>฿185/เส้น</td>
+            <td class="item-qty">×20</td>
+            <td class="item-price">฿3,700</td>
+          </tr>
+          <tr>
+            <td><div class="item-cell"><div class="item-thumb">🔧</div><div><div class="item-brand">Bosch</div><div class="item-name">สว่านโรตารี่ SDS+</div><div class="item-desc">GBH 2-26 กำลัง 830W</div></div></div></td>
+            <td><span class="old" style="font-size:0.72rem;color:var(--muted);text-decoration:line-through;display:block;">฿5,990</span>฿4,990/เครื่อง</td>
+            <td class="item-qty">×1</td>
+            <td class="item-price">฿4,990<span class="old" style="font-size:0.72rem;color:var(--green);display:block;">ประหยัด ฿1,000</span></td>
+          </tr>
+          <tr>
+            <td><div class="item-cell"><div class="item-thumb">🔌</div><div><div class="item-brand">Phelps Dodge</div><div class="item-name">สายไฟ THW 2.5 ตร.มม.</div><div class="item-desc">ขดยาว 100 ม. สีเหลือง</div></div></div></td>
+            <td>฿850/ขด</td>
+            <td class="item-qty">×3</td>
+            <td class="item-price">฿2,550</td>
+          </tr>
+          <tr>
+            <td><div class="item-cell"><div class="item-thumb">🪟</div><div><div class="item-brand">Gyproc</div><div class="item-name">แผ่นยิปซัมฝ้า</div><div class="item-desc">หนา 9 มม. ขนาด 1.2×2.4 ม.</div></div></div></td>
+            <td><span class="old" style="font-size:0.72rem;color:var(--muted);text-decoration:line-through;display:block;">฿195</span>฿165/แผ่น</td>
+            <td class="item-qty">×30</td>
+            <td class="item-price">฿4,950<span class="old" style="font-size:0.72rem;color:var(--green);display:block;">ประหยัด ฿900</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SHIPPING & PAYMENT INFO -->
+    <div class="card" style="animation-delay:0.14s">
+      <div class="card-head"><h2>📋 ข้อมูลการจัดส่งและชำระเงิน</h2></div>
+      <div class="info-grid">
+        <div class="info-block">
+          <div class="info-label">📍 ที่อยู่จัดส่ง</div>
+          <div class="info-value">
+            <strong>สมชาย ใจดี</strong><br>
+            123/45 ถนนสุขุมวิท ซ.71<br>
+            แขวงคลองตันเหนือ เขตวัฒนา<br>
+            กรุงเทพมหานคร 10110<br>
+            📞 081-234-5678
+          </div>
+          <div class="info-tag">🏗️ ไซต์งานก่อสร้าง</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">👷 ผู้รับสินค้า</div>
+          <div class="info-value">
+            <strong>สมหมาย ทำงานดี</strong><br>
+            ผู้จัดการโครงการ (PM)<br>
+            📞 089-111-2222
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">🚛 วิธีจัดส่ง</div>
+          <div class="info-value">
+            <strong>จัดส่งมาตรฐาน</strong><br>
+            📅 วันพฤหัสบดีที่ 22 มี.ค. 2568<br>
+            ⏰ ช่วงเวลา 08:00–12:00 น.
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">💳 ชำระเงินด้วย</div>
+          <div class="info-value">
+            <strong>บัตรเครดิต VISA</strong><br>
+            **** **** **** 4242<br>
+            ฿17,615.00 · ชำระแล้ว
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVOICE PREVIEW -->
+    <div class="card" style="animation-delay:0.2s">
+      <div class="card-head">
+        <h2>🧾 ใบกำกับภาษี / ใบเสร็จ</h2>
+        <button class="btn-outline" style="width:auto;padding:6px 16px;font-size:0.8rem;margin:0;" onclick="showToast('📄 กำลังดาวน์โหลด PDF...')">⬇ ดาวน์โหลด PDF</button>
+      </div>
+      <div style="padding:1.25rem 1.5rem;">
+        <div class="invoice-preview">
+          <div class="inv-head">
+            <div>
+              <div class="inv-logo">🏗️ BUILDPRO</div>
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:3px;">บริษัท บิลด์โปร จำกัด<br>เลขที่ผู้เสียภาษี: 0105567890123</div>
+            </div>
+            <div class="inv-meta">
+              <div><strong>ใบกำกับภาษีอย่างย่อ</strong></div>
+              <div>เลขที่: INV-2568-88741</div>
+              <div>วันที่: 20 มีนาคม 2568</div>
+            </div>
+          </div>
+          <hr class="inv-divider">
+          <div class="inv-row"><span>ราคาสินค้ารวม (ก่อน VAT)</span><span>฿16,463</span></div>
+          <div class="inv-row"><span>ส่วนลด</span><span style="color:var(--red)">−฿2,985</span></div>
+          <div class="inv-row"><span>ค่าจัดส่ง</span><span>฿500</span></div>
+          <div class="inv-row"><span>ภาษีมูลค่าเพิ่ม 7%</span><span>฿1,152</span></div>
+          <hr class="inv-divider">
+          <div class="inv-row total"><span>ยอดรวมทั้งสิ้น</span><span>฿17,615</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+</body>
+</html>
