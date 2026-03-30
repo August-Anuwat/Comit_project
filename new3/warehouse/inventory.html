@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory — IRONFORGE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+<div class="shell" id="shell">
+
+  <!-- ============================================================
+       SIDEBAR
+  ============================================================ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">
+        <div class="brand-name">IRONFORGE</span></div>
+        <div class="brand-label">Warehouse Management</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" role="navigation" aria-label="WMS navigation">
+      <div class="nav-section">Operations</div>
+
+      <a class="nav-item" href="index.html">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+
+      <a class="nav-item" href="shipments.html">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13" rx="1"/>
+            <path d="M16 8h4l3 3v5h-7V8z"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </span>
+        <span class="nav-label">Shipments</span>
+        <span class="nav-sub-label">In/Out</span>
+      </a>
+
+      <a class="nav-item active" href="inventory.html" aria-current="page">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+        </span>
+        <span class="nav-label">Inventory</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-version">NEXUS WMS v2.4.1</div>
+      <div class="sidebar-user">
+        <div class="user-avatar">WM</div>
+        <div class="user-info">
+          <div class="user-name">Warehouse Mgr</div>
+          <div class="user-role">Site Admin</div>
+        </div>
+        <button class="collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ============================================================
+       TOPBAR
+  ============================================================ -->
+  <header class="topbar" role="banner">
+    <div class="topbar-breadcrumb">
+      <span class="breadcrumb-site">nexus-wms</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-page">Inventory</span>
+    </div>
+    <div class="topbar-actions">
+      <a class="topbar-icon-btn" href="#" title="Alerts" aria-label="View alerts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="topbar-notif-dot" id="notifDot" style="display:none"></span>
+      </a>
+      <div class="topbar-divider"></div>
+      <!-- View Toggle -->
+      <div style="display:flex;gap:2px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface-2)">
+        <button id="btnTable" class="btn btn-ghost" style="border:none;border-radius:0;padding:5px 9px;background:var(--sidebar-bg);color:#fff" onclick="setView('table')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+        </button>
+        <button id="btnGrid" class="btn btn-ghost" style="border:none;border-radius:0;padding:5px 9px" onclick="setView('grid')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="admin-chip">
+        <div class="admin-chip-avatar">WM</div>
+        <span class="admin-chip-name">Warehouse Mgr</span>
+      </div>
+      <button class="logout-btn" onclick="showToast('Session ended. Redirecting…', 'info')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="main">
+    <div class="content">
+
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Stock Management</div>
+          <h1 class="page-title">Inventory</h1>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="showToast('Exporting inventory report…', 'info')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
+          </button>
+          <button class="btn btn-orange" onclick="showToast('Stock adjustment form coming soon.', 'info')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Adjust Stock
+          </button>
+        </div>
+      </div>
+
+      <!-- Inventory Stats Strip -->
+      <div class="stats-grid" style="margin-bottom:18px;grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card stat-card--green" style="padding:14px 16px">
+          <div class="stat-body">
+            <div class="stat-label">Total SKUs</div>
+            <div class="stat-value" style="font-size:26px">12</div>
+          </div>
+        </div>
+        <div class="stat-card stat-card--blue" style="padding:14px 16px">
+          <div class="stat-body">
+            <div class="stat-label">OK / Overstock</div>
+            <div class="stat-value" style="font-size:26px">8</div>
+          </div>
+        </div>
+        <div class="stat-card stat-card--orange" style="padding:14px 16px">
+          <div class="stat-body">
+            <div class="stat-label">Low Stock</div>
+            <div class="stat-value" style="font-size:26px">2</div>
+          </div>
+        </div>
+        <div class="stat-card stat-card--red" style="padding:14px 16px">
+          <div class="stat-body">
+            <div class="stat-label">Critical</div>
+            <div class="stat-value" style="font-size:26px">2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Toolbar -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <div>
+            <div class="section-card-title">Stock Levels</div>
+            <div class="section-card-sub" id="invCountLabel">Loading…</div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input type="text" id="invSearch" placeholder="Search SKU, name, bin…" oninput="renderInventory()" />
+            </div>
+            <select class="toolbar-select" id="invWhFilter" onchange="renderInventory()">
+              <option value="">All Warehouses</option>
+              <option value="WH-A">WH-A</option>
+              <option value="WH-B">WH-B</option>
+              <option value="WH-C">WH-C</option>
+            </select>
+            <select class="toolbar-select" id="invStatusFilter" onchange="renderInventory()">
+              <option value="">All Statuses</option>
+              <option value="ok">In Stock</option>
+              <option value="low">Low Stock</option>
+              <option value="critical">Critical</option>
+              <option value="overstock">Overstock</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table View (default) -->
+        <div id="viewTable">
+          <div class="table-wrap">
+            <table aria-label="Inventory table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Product Name</th>
+                  <th>Qty on Hand</th>
+                  <th>Reorder Pt.</th>
+                  <th>Bin Location</th>
+                  <th>Warehouse</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card Grid View (hidden by default) -->
+        <div id="viewGrid" style="display:none">
+          <div class="inventory-grid" id="inventoryGrid"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+</div><!-- /.shell -->
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script src="script.js" defer></script>
+<script>
+  /* View toggle — inline because it references DOM specific to this page */
+  function setView(mode) {
+    const tableEl = document.getElementById('viewTable');
+    const gridEl  = document.getElementById('viewGrid');
+    const btnT    = document.getElementById('btnTable');
+    const btnG    = document.getElementById('btnGrid');
+
+    if (mode === 'table') {
+      tableEl.style.display = 'block';
+      gridEl.style.display  = 'none';
+      btnT.style.background = 'var(--sidebar-bg)';
+      btnT.style.color      = '#fff';
+      btnG.style.background = '';
+      btnG.style.color      = '';
+    } else {
+      tableEl.style.display = 'none';
+      gridEl.style.display  = 'block';
+      btnG.style.background = 'var(--sidebar-bg)';
+      btnG.style.color      = '#fff';
+      btnT.style.background = '';
+      btnT.style.color      = '';
+    }
+  }
+</script>
+</body>
+</html>

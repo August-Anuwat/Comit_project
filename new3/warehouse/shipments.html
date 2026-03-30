@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipments — IRONFORGE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+<div class="shell" id="shell">
+
+  <!-- ============================================================
+       SIDEBAR
+  ============================================================ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">
+        <div class="brand-name">IRONFORGE</div>
+        <div class="brand-label">Warehouse Management</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" role="navigation" aria-label="WMS navigation">
+      <div class="nav-section">Operations</div>
+
+      <a class="nav-item" href="index.html">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+
+      <a class="nav-item active" href="shipments.html" aria-current="page">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13" rx="1"/>
+            <path d="M16 8h4l3 3v5h-7V8z"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </span>
+        <span class="nav-label">Shipments</span>
+        <span class="nav-sub-label">In/Out</span>
+      </a>
+
+      <a class="nav-item" href="inventory.html">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+        </span>
+        <span class="nav-label">Inventory</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-version">NEXUS WMS v2.4.1</div>
+      <div class="sidebar-user">
+        <div class="user-avatar">WM</div>
+        <div class="user-info">
+          <div class="user-name">Warehouse Mgr</div>
+          <div class="user-role">Site Admin</div>
+        </div>
+        <button class="collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ============================================================
+       TOPBAR
+  ============================================================ -->
+  <header class="topbar" role="banner">
+    <div class="topbar-breadcrumb">
+      <span class="breadcrumb-site">nexus-wms</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-page">Shipments</span>
+    </div>
+    <div class="topbar-actions">
+      <a class="topbar-icon-btn" href="#" title="Alerts" aria-label="View alerts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span class="topbar-notif-dot" id="notifDot" style="display:none"></span>
+      </a>
+      <div class="topbar-divider"></div>
+      <div class="admin-chip">
+        <div class="admin-chip-avatar">WM</div>
+        <span class="admin-chip-name">Warehouse Mgr</span>
+      </div>
+      <button class="logout-btn" onclick="showToast('Session ended. Redirecting…', 'info')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="main">
+    <div class="content">
+
+      <div class="page-header">
+        <div>
+          <div class="page-eyebrow">Logistics Management</div>
+          <h1 class="page-title">Shipments</h1>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="showToast('Exporting shipment data…', 'info')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
+          </button>
+          <button class="btn btn-orange" onclick="showToast('New shipment form coming soon.', 'info')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Shipment
+          </button>
+        </div>
+      </div>
+
+      <!-- Shipment Stats Strip -->
+      <div class="stats-grid" style="margin-bottom:18px">
+        <div class="stat-card stat-card--blue" style="padding:14px 16px">
+          <div class="stat-body">
+            <div class="stat-label">In Transit</div>
+            <div class="stat-value" style="font-size:26px">3</div>
+          </div>
+          <div class="stat-icon stat-icon--blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card stat-card--orange" style="padding:14px 16px">
+          <div class="stat-body">
+            <div class="stat-label">Delayed</div>
+            <div class="stat-value" style="font-size:26px">2</div>
+          </div>
+          <div class="stat-icon stat-icon--orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card stat-card--green" style="padding:14px 16px">
+          <div class="stat-body">
+            <div class="stat-label">Delivered This Week</div>
+            <div class="stat-value" style="font-size:26px">3</div>
+          </div>
+          <div class="stat-icon stat-icon--green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipments Table -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <div>
+            <div class="section-card-title">All Shipments</div>
+            <div class="section-card-sub" id="shipCountLabel">Loading…</div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input type="text" id="shipSearch" placeholder="Search ID, carrier, destination…" oninput="renderShipments()" />
+            </div>
+            <select class="toolbar-select" id="shipTypeFilter" onchange="renderShipments()">
+              <option value="">All Types</option>
+              <option value="Inbound">Inbound</option>
+              <option value="Outbound">Outbound</option>
+            </select>
+            <select class="toolbar-select" id="shipStatusFilter" onchange="renderShipments()">
+              <option value="">All Statuses</option>
+              <option value="Transit">In Transit</option>
+              <option value="Processing">Processing</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Delayed">Delayed</option>
+            </select>
+            <select class="toolbar-select" id="shipCarrierFilter" onchange="renderShipments()">
+              <option value="">All Carriers</option>
+              <option value="FedEx Freight">FedEx Freight</option>
+              <option value="UPS Supply Chain">UPS Supply Chain</option>
+              <option value="XPO Logistics">XPO Logistics</option>
+              <option value="Estes Express">Estes Express</option>
+              <option value="Old Dominion">Old Dominion</option>
+              <option value="ABF Freight">ABF Freight</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table aria-label="Shipments table">
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Type</th>
+                <th>Carrier</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>ETA</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shipmentsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div><!-- /.shell -->
+
+<!-- Shipment Detail Modal -->
+<div class="modal-overlay" id="shipModal" role="dialog" aria-modal="true" aria-label="Shipment details">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="shipModalTitle">Shipment Detail</div>
+        <div class="modal-subtitle" id="shipModalSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('shipModal')" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body" id="shipModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('shipModal')">Close</button>
+      <button class="btn btn-orange" onclick="showToast('Shipment flagged for review.', 'warning');closeModal('shipModal')">Flag for Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
